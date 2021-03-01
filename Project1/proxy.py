@@ -41,3 +41,18 @@ def tkinter():
 
     unblock_button = Button(console, text="Unblock URL", command=unblock_url)
     unblock_button.grid(row=1, column=1)
+
+    def print_blocked():
+        print(blocked)
+
+    print_blocked = Button(console,
+                           text="Print Blocked URLs",
+                           command=print_blocked)
+    print_blocked.grid(row=3, column=0)
+
+    def print_cached():
+        for key, value in cache.iteritems():
+            print key
+
+    print_cached = Button(console, text="Print Cache", command=print_cached)
+    print_cached.grid(row=3, column=1)
