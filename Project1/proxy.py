@@ -80,7 +80,7 @@ def main():
 		print("Unable to initalize socket...")
 		sys.exit()
 
-    # While connection initiated
+    # While connection active
     while True:
 		try:
 			# Accept connection from client browser
@@ -92,7 +92,63 @@ def main():
 			s.close()
 			print("Proxy server shutting down...")
 			sys.exit(1)
+    #close connection
 	s.close()
 
 def proxy_thread(conn, data, client_addr):
-    
+
+    print("Starting new thread...")
+
+    try:
+        #checking the request
+        first_line = data.split("\n")[0]
+        url = first_line.split(" ")[1]
+        method = first_line.split(" ")[0]
+        print("Connecting to " + url)
+        print("Method: " + method)
+
+        #find http position
+        http_pos = url.find("://")
+        if (http_pos == -1):
+            temp = url
+        else:
+            temp = url([http_pos + 3]:)
+        
+        #find port position
+        port_pos = temp.find(":")
+
+        #find termination of url
+        webserver_pos = temp.find("/") 	
+		if webserver_pos == -1:
+			webserver_pos = len(temp)
+
+        webserver == ""
+        port == -1
+        #if no port specified... default port
+        if (port_pos == -1 or webserver_pos < port_pos):	
+			port = 80
+			webserver = temp[:webserver_pos]
+        #specified port...
+        else:
+            port = int((temp[(port_pos+1):])[:webserver_pos-port_pos-1])
+			webserver = temp[:port_pos]
+
+        #check if cached
+        t0 = time.time()
+		x = cache.get(webserver)
+		if x is not None:
+			#If cached, send response..
+			print("Found in Cache!")
+			print("Sending response to user...")
+			conn.sendall(x)
+			t1 = time.time()
+			print("Request took: " + str(t1-t0) + "s with cache.")
+		else:
+			# If we don't, call function to processs request
+			proxy_server(webserver, port, conn, client_addr, data, method)
+	except Exception, e:
+		pass
+        
+
+
+        
