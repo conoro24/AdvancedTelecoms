@@ -1,4 +1,8 @@
-import os, sys, thread, socket, time
+import os
+import sys
+import threading
+import socket
+import time
 import Tkinter as tk
 from Tkinter import *
 
@@ -67,7 +71,8 @@ def tkinter():
 
 def main():
     # Run new thread
-    thread.start_new_thread(tkinter, ())
+    x = threading.Thread(target=tkinter, args=())
+    x.start()
     listening_port = int(raw_input("Enter Listening Port Number: "))
 
     try:
@@ -89,7 +94,9 @@ def main():
             conn, client_addr = s.accept()
             data = conn.recv(MAX_DATA)
             # Start a new thread
-            thread.start_new_thread(proxy_thread, (conn, data, client_addr))
+            x = threading.Thread(target=proxy_thread,
+                                 args=(conn, data, client_addr))
+            x.start()
         except KeyboardInterrupt:
             s.close()
             print("Proxy server shutting down...")
