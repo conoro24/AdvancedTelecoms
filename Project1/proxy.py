@@ -94,9 +94,9 @@ def main():
             conn, client_addr = s.accept()
             data = conn.recv(MAX_DATA)
             # Start a new thread
-            x = threading.Thread(target=proxy_thread,
+            y = threading.Thread(target=proxy_thread,
                                  args=(conn, data, client_addr))
-            x.start()
+            y.start()
         except KeyboardInterrupt:
             s.close()
             print("Proxy server shutting down...")
