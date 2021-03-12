@@ -1,13 +1,14 @@
 import os, sys, thread, socket, time
 import Tkinter as tk
-from TKinter import *
+from Tkinter import *
 
 # CONSTRAINTS
-BACKLOG = 200 # Maximum pending connections
-MAX_DATA = 4096 # Max number of bytes that can be received 
+BACKLOG = 200  # Maximum pending connections
+MAX_DATA = 4096  # Max number of bytes that can be received
 DEBUG = True
 blocked = {}
 cache = {}
+
 
 # Tkinter function used to dynamically block URLs and display cache/blocked URLs
 # Creates buttons for managment console
@@ -63,36 +64,41 @@ def tkinter():
 
     mainloop()
 
+
 def main():
     # Run new thread
-    thread.start_new_thread(tkinter,())
+    thread.start_new_thread(tkinter, ())
     listening_port = int(raw_input("Enter Listening Port Number: "))
 
     try:
         #initiate websocket
-		s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-		s.bind(('', listening_port))				
-		s.listen(BACKLOG)						
-		print("Sockets binded successfully...")
-		print("Server started successfully at port: [ %d ]\n" % (listening_port))
+        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        s.bind(('', listening_port))
+        s.listen(BACKLOG)
+        print("Sockets binded successfully...")
+        print("Server started successfully at port: [ %d ]\n" %
+              (listening_port))
     except Exception, e:
-		print("Unable to initalize socket...")
-		sys.exit()
+        print("Unable to initalize socket...")
+        sys.exit()
 
     # While connection active
     while True:
-		try:
-			# Accept connection from client browser
-			conn, client_addr = s.accept()		
-			data = conn.recv(MAX_DATA)		
-			# Start a new thread
-			thread.start_new_thread(proxy_thread, (conn, data, client_addr)) 
-		except KeyboardInterrupt:
-			s.close()
-			print("Proxy server shutting down...")
-			sys.exit(1)
+        try:
+            # Accept connection from client browser
+            conn, client_addr = s.accept()
+            data = conn.recv(MAX_DATA)
+            # Start a new thread
+            thread.start_new_thread(proxy_thread, (conn, data, client_addr))
+        except KeyboardInterrupt:
+            s.close()
+            print("Proxy server shutting down...")
+            sys.exit(1)
     #close connection
-	#s.close()
+
+
+#s.close()
+
 
 def proxy_thread(conn, data, client_addr):
 
@@ -112,44 +118,43 @@ def proxy_thread(conn, data, client_addr):
             temp = url
         else:
             temp = url[(http_pos + 3):]
-        
+
         #find port position
         port_pos = temp.find(":")
 
         #find termination of url
-        webserver_pos = temp.find("/") 	
+        webserver_pos = temp.find("/")
         if (webserver_pos == -1):
-		    webserver_pos = len(temp)
+            webserver_pos = len(temp)
 
         webserver == ""
         port == -1
         #if no port specified... default port
-        if (port_pos == -1 or webserver_pos < port_pos):	
-			port = 80
-			webserver = temp[:webserver_pos]
+        if (port_pos == -1 or webserver_pos < port_pos):
+            port = 80
+            webserver = temp[:webserver_pos]
         #specified port...
         else:
-            port = int((temp[(port_pos+1):])[:webserver_pos-port_pos-1])
+            port = int((temp[(port_pos + 1):])[:webserver_pos - port_pos - 1])
             webserver = temp[:port_pos]
 
         #check if cached
         t0 = time.time()
         x = cache.get(webserver)
-        
+
         if x is not None:
-			#If cached, send response..
-			print("Found in Cache!")
-			print("Sending response to user...")
-			conn.sendall(x)
-			t1 = time.time()
-			print("Request took: " + str(t1-t0) + "s with cache.")
+            #If cached, send response..
+            print("Found in Cache!")
+            print("Sending response to user...")
+            conn.sendall(x)
+            t1 = time.time()
+            print("Request took: " + str(t1 - t0) + "s with cache.")
         else:
-			# If we don't, call function to processs request
-			proxy_server(webserver, port, conn, client_addr, data, method)
-            
+            # If we don't, call function to processs request
+            proxy_server(webserver, port, conn, client_addr, data, method)
+
     except Exception, e:
-		pass
-        
+        pass
 
 
 def proxy_server(webserver, port, conn, client_addr, data, method):
@@ -158,10 +163,10 @@ def proxy_server(webserver, port, conn, client_addr, data, method):
 
     #check if URL is blocked
     for key, value in blocked.iteritems():
-		if key in webserver and value is 1:
-			print("That url is blocked!")
-			conn.close()
-			return
+        if key in webserver and value is 1:
+            print("That url is blocked!")
+            conn.close()
+            return
 
     #If method is CONNECT, we know it is HTTPS
     if method == "CONNECT":
@@ -180,20 +185,20 @@ def proxy_server(webserver, port, conn, client_addr, data, method):
         print("Websocket connection is active...")
 
         while True:
-			try:
-				#receive request from client
-				request = conn.recv(MAX_DATA)
-				#send request to server
-				s.sendall(request)
-			except socket.error as err:
-				pass
-			try:
-				#receive reply from server
-				reply = s.recv(MAX_DATA)
-				#send reply to client
-				conn.sendall(reply)
-			except socket.error as err:
-				pass
+            try:
+                #receive request from client
+                request = conn.recv(MAX_DATA)
+                #send request to server
+                s.sendall(request)
+            except socket.error as err:
+                pass
+            try:
+                #receive reply from server
+                reply = s.recv(MAX_DATA)
+                #send reply to client
+                conn.sendall(reply)
+            except socket.error as err:
+                pass
         print("Sending response to client...")
 
     # else we know its a HTTP request
@@ -205,26 +210,26 @@ def proxy_server(webserver, port, conn, client_addr, data, method):
         s.send(data)
         s.settimeout(2)
         try:
-			while True:
-				#receive response from server
-				reply = s.recv(MAX_DATA)
-				if (len(reply) > 0):
-					#send response to client
-					conn.send(reply)
-                        string_for_cache.extend(reply)
+            while True:
+                #receive response from server
+                reply = s.recv(MAX_DATA)
+                if (len(reply) > 0):
+                    #send response to client
+                    conn.send(reply)
+                    string_for_cache.extend(reply)
                 else:
                     break
-		except socket.error:
-			pass
-		print("Sending response to client...")
-		t1 = time.time()
-		print("Request took: " + str(t1-t0) + "s") 
-		cache[webserver] = string_for_cache
-		print("Added to cache: " + webserver)
-		#close Server and Client socket
-		s.close()		
-		conn.close()
+        except socket.error:
+            pass
+        print("Sending response to client...")
+        t1 = time.time()
+        print("Request took: " + str(t1 - t0) + "s")
+        cache[webserver] = string_for_cache
+        print("Added to cache: " + webserver)
+        #close connections
+        s.close()
+        conn.close()
+
 
 if __name__ == '__main__':
-	main()
-
+    main()
