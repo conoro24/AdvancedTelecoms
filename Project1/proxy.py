@@ -66,7 +66,7 @@ def tkinter():
     print_cached = Button(console, text="Print Cache", command=print_cached)
     print_cached.grid(row=3, column=1)
 
-    mainloop()
+    console.mainloop()
 
 
 def main():
@@ -102,9 +102,7 @@ def main():
             print("Proxy server shutting down...")
             sys.exit(1)
     #close connection
-
-
-#s.close()
+    s.close()
 
 
 def proxy_thread(conn, data, client_addr):
